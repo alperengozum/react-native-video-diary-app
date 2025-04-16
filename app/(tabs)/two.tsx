@@ -1,15 +1,15 @@
 import { Stack } from 'expo-router';
 
-import { Container } from '~/components/Container';
+import { SafeAreaContainer } from '~/components/SafeAreaContainer';
 import { ScreenContent } from '~/components/ScreenContent';
 
 export default function Home() {
   return (
     <>
       <Stack.Screen options={{ title: 'Tab Two' }} />
-      <Container>
-        <ScreenContent path="app/(drawer)/(tabs)/two.tsx" title="Tab Two" />
-      </Container>
+      <SafeAreaContainer>
+        <ScreenContent path="app/(tabs)/two.tsx" title="Tab Two" />
+      </SafeAreaContainer>
     </>
   );
 }
