@@ -1,17 +1,15 @@
 import {View} from "react-native";
-import {useVideoStore} from "~/store/VideoStore";
+import {useCroppedVideoStore} from "~/store/CroppedVideoStore";
 import {Video} from "~/domain/Video";
 import {ScrollView} from "react-native-reanimated/src/Animated";
 import {VideoList} from "~/components/video/VideoList";
 import {UploadButton} from "~/components/video/UploadButton";
 import {useRouter} from "expo-router";
 import * as picker from 'expo-image-picker';
-import {useState} from "react";
 
 export default function MainScreen() {
 	const router = useRouter();
-
-	const [video, setVideo] = useState<Video | null>(null);
+	const updateVideo = useCroppedVideoStore((state) => state.updateVideo);
 
 	const pickVideo = async () => {
 		let result = await picker.launchImageLibraryAsync({
@@ -20,23 +18,23 @@ export default function MainScreen() {
 		});
 
 		if (!result.canceled) {
-			setVideo({
-				name: result.assets[0].fileName || "video.mp4",
-				description: "Description",
+			updateVideo("0", {
 				uri: result.assets[0].uri,
-			});
+				id: "0",
+			})
+			return result.assets[0].uri;
 		}
 	}
 	const onUploadPress = async () => {
-		await pickVideo()
-		router.navigate("/edit-modal");
-		useVideoStore.getState().addVideo({
-			name: `Video ${Math.random()}`,
-			description: `Description ${Math.random()}`,
-		})
+		const uri = await pickVideo()
+		if (!uri) {
+			//TODO: Show an error message
+			return;
+		}
+		router.navigate(`/crop/0`);
 	}
 
-	const videos: Video[] = useVideoStore((state) => state.videos);
+	const videos: Video[] = useCroppedVideoStore((state) => state.videos);
 	return (
 		<View className={"flex flex-1 bg-white"}>
 			<ScrollView>

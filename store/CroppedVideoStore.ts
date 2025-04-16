@@ -3,18 +3,30 @@ import {Video, VideoState} from "~/domain/Video";
 import {persist} from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const useVideoStore = create<VideoState>()(
+export const useCroppedVideoStore = create<VideoState>()(
 	persist(
 		(setState, getState) => ({
-			videos: [] as Video[],
+			videos: [
+				{
+					id: "0",
+					uri: "",
+				},
+			] as Video[],
 			addVideo: (video: Video) => {
 				const videos = [...getState().videos, video];
 				setState({videos})
 				return video;
 			},
+			getVideo: (id: string) => {
+				const video = getState().videos.find((v: Video): boolean => v.id === id);
+				if (!video) {
+					return undefined;
+				}
+				return video;
+			},
 			updateVideo: (id, param) => {
-				const updated = getState().videos.map((v, index) => {
-					if (index.toString() === id) {
+				const updated = getState().videos.map((v) => {
+					if (v.id === id) {
 						return {...v, ...param};
 					}
 					return v;
