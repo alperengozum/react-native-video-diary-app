@@ -9,35 +9,27 @@ import {useMutation} from '@tanstack/react-query';
 import {FFmpegKit} from 'ffmpeg-kit-react-native';
 
 //TODO: Add interface
-export default function VideoTrimmer({videoUri, onNext}: any) {
+export default function VideoCropperContainer({videoUri, onNext}: any) {
 	const [start, setStart] = useState(0);
 	const [end, setEnd] = useState(5);
 	const [duration, setDuration] = useState(0);
+	const [isPlaying, setIsPlaying] = useState(false);
 
 	const player = useVideoPlayer(videoUri, (player) => {
 		player.loop = false;
 		player.play();
 	});
 
-	const handleSliderChange = async (value: number) => {
-		const clampedStart = Math.min(value, duration - 5);
-		setStart(clampedStart);
-		setEnd(clampedStart + 5);
-		player.currentTime = clampedStart;
-		player.play();
-		await new Promise((resolve) => setTimeout(resolve, 5000));
-		player.pause();
-	};
-
-	const handleLoad = (status: VideoPlayerStatus, oldStatus?: VideoPlayerStatus) => {
-		if (duration === 0) {
-			setDuration(player.duration);
-			setEnd(Math.min(5, player.duration));
+	const onNextPress = async () => {
+		await trimVideo()
+		const video = {
+			cropped: true,
+			croppedUri: data,
+			uri: videoUri,
+			croppedAt: new Date().getTime()
 		}
-		if (status === 'loading' && oldStatus === 'idle') {
-			setStart(0);
-		}
-	};
+		onNext(video);
+	}
 
 	const trimVideo = async (): Promise<string> => {
 		const outputUri = `${videoUri.split('.').slice(0, -1).join('.')}_trimmed.mp4`;
@@ -50,33 +42,61 @@ export default function VideoTrimmer({videoUri, onNext}: any) {
 		const session = await FFmpegKit.execute(command);
 		const returnCode = await session.getReturnCode();
 		if (returnCode.isValueSuccess()) {
-			return outputUri; // Return the trimmed video path
+			return outputUri;
 		} else {
 			throw new Error('Error trimming video');
 		}
 	};
 
+	const playAndPauseAfter5Seconds = async () => {
+		if (isPlaying) {
+			player.pause();
+			setIsPlaying(false);
+		} else {
+			if (player.currentTime !== start) {
+				player.currentTime = start;
+			}
+			player.play();
+			setIsPlaying(true);
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+			player.pause();
+			setIsPlaying(false);
+		}
+	}
+	const {mutate, data, isError} = useMutation({mutationFn: onNextPress});
+
+	const handleSliderChange = async (value: number) => {
+		const clampedStart = Math.min(value, duration - 5);
+		setStart(clampedStart);
+		setEnd(clampedStart + 5);
+		player.currentTime = clampedStart;
+		await playAndPauseAfter5Seconds();
+	};
+
+	const handleLoad = (status: VideoPlayerStatus, oldStatus?: VideoPlayerStatus) => {
+		if (duration === 0) {
+			setDuration(player.duration);
+			setEnd(Math.min(5, player.duration));
+		}
+		if (status === 'loading' && oldStatus === 'idle') {
+			setStart(0);
+			player.pause();
+		}
+	};
+
+	const togglePlayPause = async () => {
+		await playAndPauseAfter5Seconds();
+	}
+
 	useEventListener(player, 'statusChange', ({status, oldStatus}: StatusChangeEventPayload) =>
 		handleLoad(status, oldStatus)
 	);
-
-	const {mutate, data, isLoading, isError} = useMutation({mutationFn: trimVideo});
-
-
-	const outputPlayer = useVideoPlayer(data, (player) => {
-		player.loop = false;
-		player.play();
-	});
-
-	if (data) {
-		console.log("mutated data", data);
-	}
 
 	return (
 		<View className="p-4 justify-start flex flex-1 w-full items-center">
 			<VideoView style={{
 				width: '100%',
-				height: 200,
+				height: 400,
 				backgroundColor: 'black',
 				borderRadius: 10,
 			}} player={player} nativeControls={false}/>
@@ -104,15 +124,17 @@ export default function VideoTrimmer({videoUri, onNext}: any) {
 				</Text>
 				<Ionicons name={"chevron-forward-outline"} size={12} color="white"/>
 			</TouchableOpacity>
-
-			{isLoading && <Text>Trimming video...</Text>}
 			{isError && <Text>Error occurred while trimming the video.</Text>}
-			{data && <VideoView style={{
-				width: '100%',
-				height: 200,
-				backgroundColor: 'black',
-				borderRadius: 10,
-			}} player={outputPlayer} nativeControls={true}/>}
+			<TouchableOpacity
+				className={"mt-5 items-center justify-center w-[50px] h-[50px] bg-purple-700 rounded-full p-2.5"}
+				onPress={togglePlayPause}
+			>
+				<Ionicons
+					name={isPlaying ? 'pause' : 'play'}
+					size={24}
+					color="white"
+				/>
+			</TouchableOpacity>
 		</View>
 	);
 }

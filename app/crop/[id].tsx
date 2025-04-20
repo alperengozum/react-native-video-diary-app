@@ -4,29 +4,48 @@ import {ScreenContent} from '~/components/ScreenContent';
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {useCroppedVideoStore} from "~/store/CroppedVideoStore";
 import {Video} from "~/domain/Video";
-import VideoTrimmer from "~/components/video/VideoTrimmer";
+import VideoCropperContainer from "~/components/video/VideoCropperContainer";
+import {useSelectedVideoStore} from "~/store/SelectedVideoStore";
 
 export default function Modal() {
 	const {id} = useLocalSearchParams();
 	const router = useRouter();
 	let video: Video | undefined;
-	if (id) {
-		video = useCroppedVideoStore((state) => state.getVideo(id as string));
-	} else {
-		video = useCroppedVideoStore((state) => state.getVideo("0"));
+	const updateSelectedVideo = useCroppedVideoStore((state) => (state.updateVideo));
+	const updateVideo = useCroppedVideoStore((state) => (state.updateVideo));
+
+	switch (id) {
+		case "new":
+			video = useSelectedVideoStore((state) => state.video);
+			break;
+		default:
+			video = useCroppedVideoStore((state) => state.getVideo(id as string));
+			break;
+	}
+
+	const onNextPress = (_video: Video) => {
+		videoCrop(_video);
+		router.push(`/edit/${id}`);
+	}
+
+	const videoCrop = (_video: Video) => {
+		if (!id) {
+			return;
+		}
+		switch (id) {
+			case "new":
+				updateSelectedVideo(id as string, _video);
+				break;
+			default:
+				updateVideo(id as string, _video);
+				break;
+		}
 	}
 
 	return (
 		<>
 			<StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'}/>
-			<VideoTrimmer videoUri={video?.uri} onNext={(params) => {
-				if (!id) {
-					return;
-				}
-				router.push(`/edit/${id}`);
-				useCroppedVideoStore.getState().updateVideo(id as string, params);
-			}
-			}/>
+			<VideoCropperContainer videoUri={video?.uri} onNext={onNextPress}/>
 		</>
 	);
 }
