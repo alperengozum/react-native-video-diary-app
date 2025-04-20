@@ -7,6 +7,7 @@ import {VideoPlayerStatus} from 'expo-video/src/VideoPlayer.types';
 import {Ionicons} from "@expo/vector-icons";
 import {useMutation} from '@tanstack/react-query';
 import {FFmpegKit} from 'ffmpeg-kit-react-native';
+import ModalButton from "~/components/ModalButton";
 
 //TODO: Add interface
 export default function VideoCropperContainer({videoUri, onNext}: any) {
@@ -19,17 +20,6 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 		player.loop = false;
 		player.play();
 	});
-
-	const onNextPress = async () => {
-		await trimVideo()
-		const video = {
-			cropped: true,
-			croppedUri: data,
-			uri: videoUri,
-			croppedAt: new Date().getTime()
-		}
-		onNext(video);
-	}
 
 	const trimVideo = async (): Promise<string> => {
 		const outputUri = `${videoUri.split('.').slice(0, -1).join('.')}_trimmed.mp4`;
@@ -63,7 +53,19 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 			setIsPlaying(false);
 		}
 	}
-	const {mutate, data, isError} = useMutation({mutationFn: onNextPress});
+
+	const onNextPress = async () => {
+		const croppedUri = await trimVideo()
+		const video = {
+			cropped: true,
+			croppedUri,
+			uri: videoUri,
+			croppedAt: new Date().getTime()
+		}
+		onNext(video);
+	}
+
+	const {mutate, isError} = useMutation({mutationFn: onNextPress});
 
 	const handleSliderChange = async (value: number) => {
 		const clampedStart = Math.min(value, duration - 5);
@@ -96,7 +98,7 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 		<View className="p-4 justify-start flex flex-1 w-full items-center">
 			<VideoView style={{
 				width: '100%',
-				height: 400,
+				height: '60%',
 				backgroundColor: 'black',
 				borderRadius: 10,
 			}} player={player} nativeControls={false}/>
@@ -112,18 +114,9 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 				value={start}
 				onValueChange={handleSliderChange}
 				minimumTrackTintColor="#9333ea"
-				maximumTrackTintColor="#faf5ff"
+				maximumTrackTintColor="#d8b4fe"
 				thumbTintColor="#9333ea"
 			/>
-
-			<TouchableOpacity
-				className="absolute bottom-6 w-full items-center bg-purple-700 rounded-full flex-row justify-center gap-0"
-				onPress={() => mutate()}>
-				<Text className="text-white text-lg py-2 px-4">
-					Next
-				</Text>
-				<Ionicons name={"chevron-forward-outline"} size={12} color="white"/>
-			</TouchableOpacity>
 			{isError && <Text>Error occurred while trimming the video.</Text>}
 			<TouchableOpacity
 				className={"mt-5 items-center justify-center w-[50px] h-[50px] bg-purple-700 rounded-full p-2.5"}
@@ -135,6 +128,7 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 					color="white"
 				/>
 			</TouchableOpacity>
+			<ModalButton title={"Next"} icon={"chevron-forward-outline"} onPress={() => mutate()}/>
 		</View>
 	);
 }
