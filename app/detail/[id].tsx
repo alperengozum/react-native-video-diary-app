@@ -22,7 +22,7 @@ export default function DetailModal() {
 	const handleDelete = () => {
 		if (id) {
 			useCroppedVideoStore.getState().removeVideos([id as string]);
-			router.push('/(tabs)');
+			router.push('/');
 		}
 	};
 

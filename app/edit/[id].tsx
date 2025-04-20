@@ -98,7 +98,7 @@ export default function EditModal() {
 				throw result.error;
 			}
 			if (result.data) {
-				router.push(`/(tabs)`);
+				router.navigate("/")
 			}
 		} catch (error: any) {
 			Alert.alert('Error', error.message || 'Failed to add metadata to video');
