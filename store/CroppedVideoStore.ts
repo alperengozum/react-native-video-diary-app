@@ -2,13 +2,18 @@ import {create} from "zustand";
 import {Video, VideoState} from "~/domain/Video";
 import {persist} from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {generateRandomID} from "~/utils/UuidUtils";
+
 
 export const useCroppedVideoStore = create<VideoState>()(
 	persist(
 		(setState, getState) => ({
 			videos: [] as Video[],
 			addVideo: (video: Video) => {
-				const videos = [...getState().videos, video];
+				const videos = [...getState().videos, {
+					...video,
+					id: video.id == "new" ? generateRandomID() : video.id,
+				}];
 				setState({videos})
 				return video;
 			},
