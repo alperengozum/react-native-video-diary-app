@@ -10,22 +10,24 @@ export const useCroppedVideoStore = create<VideoState>()(
 		(setState, getState) => ({
 			videos: [] as Video[],
 			addVideo: (video: Video) => {
-				const videos = [...getState().videos, {
+				const _video: Video = {
 					...video,
-					id: video.id == "new" ? generateRandomID() : video.id,
-				}];
+					id: video.id === "new" || !video.id ? generateRandomID() : video.id,
+					createdAt: new Date().getTime()
+				};
+				const videos: Video[] = [...getState().videos, _video];
 				setState({videos})
-				return video;
+				return _video;
 			},
 			getVideo: (id: string) => {
-				const video = getState().videos.find((v: Video): boolean => v.id === id);
+				const video: Video | undefined = getState().videos.find((v: Video): boolean => v.id === id);
 				if (!video) {
 					return undefined;
 				}
 				return video;
 			},
 			updateVideo: (id, param) => {
-				const updated = getState().videos.map((v) => {
+				const updated: Video[] = getState().videos.map((v) => {
 					if (v.id === id) {
 						return {...v, ...param, id: id};
 					}
@@ -34,7 +36,7 @@ export const useCroppedVideoStore = create<VideoState>()(
 				setState({videos: updated});
 			},
 			removeVideos: (ids) => {
-				const updated = getState().videos.filter((_, index) => !ids.includes(index.toString()));
+				const updated: Video[] = getState().videos.filter((v) => !ids.includes(v.id!));
 				setState({videos: updated});
 			},
 		}),
