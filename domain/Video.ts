@@ -2,8 +2,12 @@
 export interface Video {
 	name?: string;
 	uri?: string;
+	cropped?: boolean;
+	croppedUri?: string;
 	description?: string;
 	id?: string;
+	croppedAt?: number;
+	createdAt?: number;
 }
 
 export interface VideoState {
