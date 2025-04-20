@@ -16,9 +16,9 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="edit/[id]" options={{ title: 'Edit', presentation: 'modal' }} />
+        <Stack.Screen name="edit/[id]" options={{ title: 'Edit Metadata', presentation: 'modal' }} />
         <Stack.Screen name="detail/[id]" options={{ title: 'Detail', presentation: 'modal' }} />
-        <Stack.Screen name="crop/[id]" options={{ title: 'Crop', presentation: 'modal' }} />
+        <Stack.Screen name="crop/[id]" options={{ title: 'Crop Video', presentation: 'modal' }} />
       </Stack>
       </QueryClientProvider>
     </GestureHandlerRootView>
