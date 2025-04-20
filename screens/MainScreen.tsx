@@ -6,10 +6,11 @@ import {VideoList} from "~/components/video/VideoList";
 import {UploadButton} from "~/components/video/UploadButton";
 import {useRouter} from "expo-router";
 import * as picker from 'expo-image-picker';
+import {useSelectedVideoStore} from "~/store/SelectedVideoStore";
 
 export default function MainScreen() {
 	const router = useRouter();
-	const updateVideo = useCroppedVideoStore((state) => state.updateVideo);
+	const setVideo = useSelectedVideoStore((state) => state.setVideo);
 
 	const pickVideo = async () => {
 		let result = await picker.launchImageLibraryAsync({
@@ -18,20 +19,21 @@ export default function MainScreen() {
 		});
 
 		if (!result.canceled) {
-			updateVideo("0", {
+			setVideo({
 				uri: result.assets[0].uri,
-				id: "0",
-			})
+			});
+
 			return result.assets[0].uri;
 		}
 	}
+
 	const onUploadPress = async () => {
 		const uri = await pickVideo()
 		if (!uri) {
 			//TODO: Show an error message
 			return;
 		}
-		router.navigate(`/crop/0`);
+		router.navigate(`/crop/new`);
 	}
 
 	const videos: Video[] = useCroppedVideoStore((state) => state.videos);

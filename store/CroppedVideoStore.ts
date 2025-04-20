@@ -6,12 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const useCroppedVideoStore = create<VideoState>()(
 	persist(
 		(setState, getState) => ({
-			videos: [
-				{
-					id: "0",
-					uri: "",
-				},
-			] as Video[],
+			videos: [] as Video[],
 			addVideo: (video: Video) => {
 				const videos = [...getState().videos, video];
 				setState({videos})
@@ -27,7 +22,7 @@ export const useCroppedVideoStore = create<VideoState>()(
 			updateVideo: (id, param) => {
 				const updated = getState().videos.map((v) => {
 					if (v.id === id) {
-						return {...v, ...param};
+						return {...v, ...param, id: id};
 					}
 					return v;
 				});
