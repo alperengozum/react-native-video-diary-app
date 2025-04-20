@@ -98,7 +98,7 @@ export default function EditModal() {
 				throw result.error;
 			}
 			if (result.data) {
-				router.push(`/detail/${result.data.id}`);
+				router.push(`/(tabs)`);
 			}
 		} catch (error: any) {
 			Alert.alert('Error', error.message || 'Failed to add metadata to video');
@@ -106,12 +106,19 @@ export default function EditModal() {
 	};
 
 	useEffect(() => {
+		let selectedVideo: Video | undefined;
 		switch (id) {
 			case "new":
-				setVideo(useSelectedVideoStore.getState().video);
+				selectedVideo = useSelectedVideoStore.getState().video;
+				setVideo(selectedVideo);
+				setName(selectedVideo?.name || '');
+				setDescription(selectedVideo?.description || '');
 				break;
 			default:
-				setVideo(useCroppedVideoStore.getState().getVideo(id as string));
+				selectedVideo = useCroppedVideoStore.getState().getVideo(id as string);
+				setVideo(selectedVideo);
+				setName(selectedVideo?.name || '');
+				setDescription(selectedVideo?.description || '');
 				break;
 		}
 	}, []);
