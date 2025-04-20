@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, Text, TouchableOpacity} from "react-native";
 import {useCroppedVideoStore} from "~/store/CroppedVideoStore";
 import {Video} from "~/domain/Video";
 import {ScrollView} from "react-native-reanimated/src/Animated";
@@ -28,21 +28,36 @@ export default function MainScreen() {
 	}
 
 	const onUploadPress = async () => {
-		const uri = await pickVideo()
+		const uri = await pickVideo();
 		if (!uri) {
-			//TODO: Show an error message
+			// TODO: Show an error message
 			return;
 		}
 		router.navigate(`/crop/new`);
 	}
 
 	const videos: Video[] = useCroppedVideoStore((state) => state.videos);
+
 	return (
 		<View className={"flex flex-1 bg-white"}>
-			<ScrollView>
-				<VideoList videos={videos} containerClassName={"flex-1"}/>
-			</ScrollView>
-			<UploadButton title={"Upload Video"} onPress={onUploadPress}/>
+			{videos.length === 0 ? (
+				<>
+					<TouchableOpacity
+						className="flex-1 justify-center items-center"
+						onPress={onUploadPress}
+					>
+						<Text className="text-gray-500 text-lg">Click to upload a video</Text>
+					</TouchableOpacity>
+					<UploadButton title={"Upload Video"} onPress={onUploadPress}/>
+				</>
+			) : (
+				<>
+					<ScrollView>
+						<VideoList videos={videos} containerClassName={"flex-1"}/>
+					</ScrollView>
+					<UploadButton title={"Upload Video"} onPress={onUploadPress}/>
+				</>
+			)}
 		</View>
-	)
+	);
 }
