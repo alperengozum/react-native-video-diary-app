@@ -1,17 +1,16 @@
 import {StatusBar} from 'expo-status-bar';
 import {Platform} from 'react-native';
-import {ScreenContent} from '~/components/ScreenContent';
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {useCroppedVideoStore} from "~/store/CroppedVideoStore";
 import {Video} from "~/domain/Video";
 import VideoCropperContainer from "~/components/video/VideoCropperContainer";
 import {useSelectedVideoStore} from "~/store/SelectedVideoStore";
 
-export default function Modal() {
+export default function CropModal() {
 	const {id} = useLocalSearchParams();
 	const router = useRouter();
 	let video: Video | undefined;
-	const updateSelectedVideo = useCroppedVideoStore((state) => (state.updateVideo));
+	const updateSelectedVideo = useSelectedVideoStore((state) => (state.setVideo));
 	const updateVideo = useCroppedVideoStore((state) => (state.updateVideo));
 
 	switch (id) {
@@ -34,7 +33,7 @@ export default function Modal() {
 		}
 		switch (id) {
 			case "new":
-				updateSelectedVideo(id as string, _video);
+				updateSelectedVideo(_video);
 				break;
 			default:
 				updateVideo(id as string, _video);
