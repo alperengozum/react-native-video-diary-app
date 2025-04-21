@@ -20,6 +20,6 @@ export interface VideoState {
 
 export interface SelectedVideoState {
 	video: Video | null;
-	setVideo: (video: Video) => Video;
+	setVideo: (video: Video | null) => Video;
 	removeVideo: () => void;
 }

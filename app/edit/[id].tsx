@@ -7,7 +7,7 @@ import {useSelectedVideoStore} from "~/store/SelectedVideoStore";
 import {useCroppedVideoStore} from "~/store/CroppedVideoStore";
 import {Video} from "~/domain/Video";
 import {FFmpegKit} from 'ffmpeg-kit-react-native';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import VideoPlayer from "~/components/video/VideoPlayer";
 
 const schema = z.object({
@@ -21,6 +21,13 @@ export default function EditModal() {
 	const [description, setDescription] = useState('');
 	const [video, setVideo] = useState<Video | undefined>(undefined);
 	const router = useRouter();
+	const queryClient = useQueryClient();
+
+	useEffect(() => {
+		return () => {
+			queryClient.clear();
+		};
+	}, [queryClient]);
 
 	const addMetadataToCroppedVideo = async (inputUri: string, outputUri: string, name: string, description?: string): Promise<string | undefined> => {
 		try {
@@ -109,7 +116,7 @@ export default function EditModal() {
 		let selectedVideo: Video | undefined;
 		switch (id) {
 			case "new":
-				selectedVideo = useSelectedVideoStore.getState().video;
+				selectedVideo = useSelectedVideoStore.getState().video!;
 				setVideo(selectedVideo);
 				setName(selectedVideo?.name || '');
 				setDescription(selectedVideo?.description || '');

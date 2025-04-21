@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, Button, TouchableOpacity} from 'react-native';
 import {useEventListener} from 'expo';
-import {StatusChangeEventPayload, useVideoPlayer, VideoView} from 'expo-video';
+import {StatusChangeEventPayload, useVideoPlayer, VideoPlayer, VideoView} from 'expo-video';
 import Slider from '@react-native-community/slider';
 import {VideoPlayerStatus} from 'expo-video/src/VideoPlayer.types';
 import {Ionicons} from "@expo/vector-icons";
@@ -15,7 +15,7 @@ export default function VideoCropperContainer({videoUri, onNext}: VideoCropperCo
 	const [duration, setDuration] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 
-	const player = useVideoPlayer(videoUri, (player) => {
+	const player: VideoPlayer = useVideoPlayer(videoUri, (player) => {
 		player.loop = false;
 		player.play();
 	});
@@ -47,9 +47,10 @@ export default function VideoCropperContainer({videoUri, onNext}: VideoCropperCo
 			}
 			player.play();
 			setIsPlaying(true);
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-			player.pause();
-			setIsPlaying(false);
+			new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
+				player.pause();
+				setIsPlaying(false);
+			});
 		}
 	}
 
