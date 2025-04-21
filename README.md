@@ -19,6 +19,7 @@
 - Tanstack Query
 - Expo Video
 - AsyncStorage
+- TypeScript
 
 ## Installation
 
