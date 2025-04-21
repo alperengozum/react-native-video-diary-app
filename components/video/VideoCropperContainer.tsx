@@ -9,8 +9,7 @@ import {useMutation} from '@tanstack/react-query';
 import {FFmpegKit} from 'ffmpeg-kit-react-native';
 import ModalButton from "~/components/ModalButton";
 
-//TODO: Add interface
-export default function VideoCropperContainer({videoUri, onNext}: any) {
+export default function VideoCropperContainer({videoUri, onNext}: VideoCropperContainerProps) {
 	const [start, setStart] = useState(0);
 	const [end, setEnd] = useState(5);
 	const [duration, setDuration] = useState(0);
@@ -131,4 +130,9 @@ export default function VideoCropperContainer({videoUri, onNext}: any) {
 			<ModalButton title={"Next"} icon={"chevron-forward-outline"} onPress={() => mutate()}/>
 		</View>
 	);
+}
+
+export interface VideoCropperContainerProps {
+	videoUri: string;
+	onNext: (video: any) => void;
 }

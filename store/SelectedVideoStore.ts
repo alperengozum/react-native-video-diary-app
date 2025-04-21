@@ -1,10 +1,9 @@
 import {create} from "zustand";
-import {Video, VideoState} from "~/domain/Video";
+import {SelectedVideoState, Video} from "~/domain/Video";
 import {persist} from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-//TODO : Add a type for the store
-export const useSelectedVideoStore = create<any>()(
+export const useSelectedVideoStore = create<SelectedVideoState>()(
 	persist(
 		(setState, getState) => ({
 			video: null as Video | null,

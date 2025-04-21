@@ -28,11 +28,7 @@ export default function MainScreen() {
 	}
 
 	const onUploadPress = async () => {
-		const uri = await pickVideo();
-		if (!uri) {
-			// TODO: Show an error message
-			return;
-		}
+		await pickVideo();
 		router.navigate(`/crop/new`);
 	}
 

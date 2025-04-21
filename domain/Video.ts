@@ -17,3 +17,9 @@ export interface VideoState {
 	updateVideo: (id: string, param: Partial<Video>) => void;
 	removeVideos: (ids: (string)[]) => void;
 }
+
+export interface SelectedVideoState {
+	video: Video | null;
+	setVideo: (video: Video) => Video;
+	removeVideo: () => void;
+}
