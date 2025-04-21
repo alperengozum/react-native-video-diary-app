@@ -14,6 +14,7 @@ export default function VideoCropperContainer({videoUri, onNext}: VideoCropperCo
 	const [end, setEnd] = useState(5);
 	const [duration, setDuration] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
 	const player: VideoPlayer = useVideoPlayer(videoUri, (player) => {
 		player.loop = false;
@@ -37,21 +38,21 @@ export default function VideoCropperContainer({videoUri, onNext}: VideoCropperCo
 		}
 	};
 
+	const setPause = async () => {
+		player.pause();
+		setIsPlaying(false);
+		clearTimeout(timeoutId || undefined);
+		setTimeoutId(null);
+	}
 	const playAndPauseAfter5Seconds = async () => {
-		if (isPlaying) {
-			player.pause();
-			setIsPlaying(false);
-		} else {
-			if (player.currentTime !== start) {
-				player.currentTime = start;
-			}
-			player.play();
-			setIsPlaying(true);
-			new Promise((resolve) => setTimeout(resolve, 5000)).then(() => {
-				player.pause();
-				setIsPlaying(false);
-			});
+		await setPause();
+		if (player.currentTime !== start) {
+			player.currentTime = start;
 		}
+		player.play();
+		setIsPlaying(true);
+		const timeout = setTimeout(() => setPause(), 5000);
+		setTimeoutId(timeout);
 	}
 
 	const onNextPress = async () => {
